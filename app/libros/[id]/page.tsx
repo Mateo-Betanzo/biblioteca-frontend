@@ -8,15 +8,19 @@ interface LibroDetalle {
   disponible: boolean;
 }
 
-export default async function LibroDetallePage({ params }: { params: { id: string } }) {
+// URL del backend Laravel: en Vercel se define con la variable de entorno API_URL
+const API_URL = process.env.API_URL ?? 'http://127.0.0.1:8000';
+
+export default async function LibroDetallePage({ params }: { params: Promise<{ id: string }> }) {
   // En Next.js 15+, params es una Promesa, por lo que es buena práctica esperarla
-  const { id } = await params; 
+  const { id } = await params;
 
-  const res = await fetch(`http://127.0.0.1:8000/api/libros/${id}`, {
+  // Si la API no responde (ej: servidor apagado), fetch lanza error: lo convertimos en null
+  const res = await fetch(`${API_URL}/api/libros/${id}`, {
     cache: 'no-store'
-  });
+  }).catch(() => null);
 
-  if (!res.ok) {
+  if (!res?.ok) {
     return (
       <div className="p-8">
         <p className="text-red-500 mb-4">Error al cargar el detalle del libro (o no existe).</p>

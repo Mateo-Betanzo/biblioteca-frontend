@@ -8,13 +8,16 @@ interface Libro {
   disponible: boolean;
 }
 
-export default async function LibrosPage() {
-  // Ajustá la URL si usás Laragon/Herd (ej: http://api-biblioteca.test/api/libros)
-  const res = await fetch('http://127.0.0.1:8000/api/libros', {
-    cache: 'no-store' // Para que no cachee y veamos cambios en vivo
-  });
+// URL del backend Laravel: en Vercel se define con la variable de entorno API_URL
+const API_URL = process.env.API_URL ?? 'http://127.0.0.1:8000';
 
-  if (!res.ok) {
+export default async function LibrosPage() {
+  // Si la API no responde (ej: servidor apagado), fetch lanza error: lo convertimos en null
+  const res = await fetch(`${API_URL}/api/libros`, {
+    cache: 'no-store' // Para que no cachee y veamos cambios en vivo
+  }).catch(() => null);
+
+  if (!res?.ok) {
     return <p className="p-4 text-red-500">No se pudieron cargar los libros. Intentá nuevamente más tarde.</p>;
   }
 
